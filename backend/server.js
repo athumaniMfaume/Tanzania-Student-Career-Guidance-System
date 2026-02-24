@@ -38,9 +38,9 @@ if (process.env.NODE_ENV === "production") {
   
   app.use(express.static(frontendPath));
 
-  app.get(".*", (req, res) => {
-    res.sendFile(path.resolve(frontendPath, "index.html"));
-  });
+app.get("/:path*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+});
 } else {
   // Local development root route
   app.get("/", (req, res) => {
