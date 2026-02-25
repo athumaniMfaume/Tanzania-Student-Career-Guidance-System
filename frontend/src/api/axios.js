@@ -1,11 +1,12 @@
 import axios from "axios";
 
+// This check happens in the browser, it is 100% accurate
+const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+
 const api = axios.create({
-  // import.meta.env.PROD is a built-in Vite boolean
-  // It is true on Render and false on your local machine
-  baseURL: import.meta.env.PROD 
-    ? "/api" 
-    : "http://localhost:5000/api",
+  baseURL: isLocal 
+    ? "http://localhost:5000/api" 
+    : "/api", // Use relative path in production
 });
 
 api.interceptors.request.use((config) => {
