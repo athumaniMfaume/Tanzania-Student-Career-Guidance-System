@@ -20,12 +20,22 @@ const allowedOrigins = [
   'https://tanzania-student-career-guidance-system.onrender.com'
 ];
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174", // Vite sometimes changes port
+  "https://tanzania-student-career-guidance-system.onrender.com"
+];
+
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+  origin: function (origin, callback) {
+    // allow requests with no origin (like Postman)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      console.log("Blocked by CORS:", origin);
+      callback(null, false); // DO NOT throw error (this was crashing your server)
     }
   },
   credentials: true,
