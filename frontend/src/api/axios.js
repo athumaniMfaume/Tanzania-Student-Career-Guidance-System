@@ -4,7 +4,7 @@ const api = axios.create({
   // import.meta.env.PROD is a built-in Vite boolean
   // It is true on Render and false on your local machine
   baseURL: import.meta.env.PROD 
-    ? "https://tanzania-student-career-guidance-system.onrender.com/api" 
+    ? "/api" 
     : "http://localhost:5000/api",
 });
 
