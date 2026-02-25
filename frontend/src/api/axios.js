@@ -1,7 +1,7 @@
-const axios = require("axios").default;
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL, // picks dev or prod automatically
+  baseURL: import.meta.env.VITE_API_URL, // <-- picks dev or prod automatically
 });
 
 api.interceptors.request.use((config) => {
@@ -12,4 +12,4 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-module.exports = api;
+export default api;
