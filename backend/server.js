@@ -17,7 +17,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
-  "https://tanzania-student-career-guidance-system.onrender.com"
+  process.env.FRONTEND_URL || "https://tanzania-student-career-guidance-system.onrender.com"
 ];
 
 app.use(cors({
@@ -32,11 +32,12 @@ app.use(cors({
 
 app.use(express.json());
 
+// Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch(err => console.log(err));
 
-// API Routes
+// API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/subjects", subjectRoutes);
 app.use("/api/combinations", combinationRoutes);
@@ -48,6 +49,7 @@ app.use("/api/jobs", jobRoutes);
 if (process.env.NODE_ENV === "production") {
   const frontendPath = path.join(__dirname, "../frontend/dist");
   app.use(express.static(frontendPath));
+
   app.get(/^(?!\/api).+/, (req, res) => {
     res.sendFile(path.join(frontendPath, "index.html"));
   });
