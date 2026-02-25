@@ -1,9 +1,9 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.NODE_ENV === "production"
+  baseURL: import.meta.env.PROD
     ? "https://tanzania-student-career-guidance-system.onrender.com/api"
-    : "http://localhost:5000/api"
+    : "http://localhost:5000/api",
 });
 
 api.interceptors.request.use((config) => {
