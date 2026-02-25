@@ -1,12 +1,12 @@
 import React, { createContext, useState, useEffect, useRef } from "react";
-import axios from "axios";
+import api from "../api/axios"; // ✅ use your configured axios instance
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  // inactivity timeout in minutes (change as needed)
+
   const INACTIVITY_MINUTES = 15;
   const timerRef = useRef(null);
 
@@ -20,17 +20,15 @@ export const AuthProvider = ({ children }) => {
   const startInactivityTimer = () => {
     clearInactivityTimer();
     timerRef.current = setTimeout(() => {
-      // automatic logout on inactivity
       logout();
     }, INACTIVITY_MINUTES * 60 * 1000);
   };
 
   const activityHandler = () => {
-    // reset timer on any user interaction
     if (user) startInactivityTimer();
   };
 
-  // Load user safely from localStorage
+  // Load user from localStorage safely
   useEffect(() => {
     try {
       const storedUser = localStorage.getItem("user");
@@ -48,21 +46,26 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Login
-const login = async (email, password) => {
-  const res = await axios.post(
-    "http://localhost:5000/api/auth/login",
-    { email, password }
-  );
+  // ✅ LOGIN (FIXED — no localhost)
+  const login = async (email, password) => {
+    try {
+      const res = await api.post("/auth/login", {
+        email,
+        password,
+      });
 
-  const loggedUser = res.data.user;
-  const token = res.data.token;
+      const loggedUser = res.data.user;
+      const token = res.data.token;
 
-  const userWithToken = { ...loggedUser, token };
+      const userWithToken = { ...loggedUser, token };
 
-  setUser(userWithToken);
-  localStorage.setItem("user", JSON.stringify(userWithToken));
-};
+      setUser(userWithToken);
+      localStorage.setItem("user", JSON.stringify(userWithToken));
+    } catch (error) {
+      console.error("Login failed:", error.response?.data || error.message);
+      throw error;
+    }
+  };
 
   // Logout
   const logout = () => {
@@ -71,26 +74,25 @@ const login = async (email, password) => {
     clearInactivityTimer();
   };
 
-  // Attach activity listeners when user is present
+  // Activity listeners
   useEffect(() => {
     const events = ["mousemove", "mousedown", "keydown", "scroll", "touchstart"];
 
     if (user) {
-      // start/reset timer
       startInactivityTimer();
-
-      // add listeners
-      events.forEach((ev) => window.addEventListener(ev, activityHandler));
+      events.forEach((ev) =>
+        window.addEventListener(ev, activityHandler)
+      );
     }
 
     return () => {
-      // cleanup listeners and timer
-      events.forEach((ev) => window.removeEventListener(ev, activityHandler));
+      events.forEach((ev) =>
+        window.removeEventListener(ev, activityHandler)
+      );
       clearInactivityTimer();
     };
   }, [user]);
 
-  // Show loading screen while checking localStorage
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen text-xl font-semibold">
